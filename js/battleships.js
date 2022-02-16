@@ -45,41 +45,46 @@ function startTheGame() {
 	console.log('third ship status is: ' + computerDestroyer2.status);
 	counter=0;
 	alert('Now input three ships by clicking the initial grid. You can decide if it is vertical or horizontal (left side down...)');
-	
-		
-	if (counter==0) {
-		document.getElementById('player').addEventListener("click", function() {
-		ID=playerLocation;
-		console.log(counter+ID);
-		playerBattleship = inputShip(ID);
-		console.log(playerBattleship.status);});
-	}
 
-	if(counter==5) {
-		document.getElementById('player').addEventListener("click", function() {
-		ID=playerLocation;
-		console.log(counter+ID);
-		playerDestroyer1 = inputShip(ID);
-		console.log(playerDestroyer1.status);});
+	document.getElementById('info').innerHTML='Set your ships!';
+	/*
+		
+	if (counter==5) {
+		
+		document.getElementById('player').addEventListener("click", definePlayerShip(playerLocation, playerBattleship));
+		document.getElementById('player').removeEventListener("click", definePlayerBattleship());
+	}
+	
+
+	if(counter==0) {
+
+			document.getElementById('player').addEventListener("click", function() {
+			ID=playerLocation;
+			
+			console.log(counter+ID);
+			playerDestroyer1 = inputShip(ID);
+			console.log(playerDestroyer1.status);
+			document.getElementById('player').removeEventListener("click", this);});
 	}
 
 	if(counter==9) {
-		document.getElementById('player').addEventListener("click", function() {
-		ID=playerLocation;
-		console.log(corunter+ID);
-		playerDestroyer2 = inputShip(ID);
-		console.log(counter + playerDestroyer2.status);});
-	}
 
-	document.getElementById('info').innerHTML='Set your ships!';
+			document.getElementById('player').addEventListener("click", function() {
+			ID=playerLocation;
+			console.log(corunter+ID);
+			playerDestroyer2 = inputShip(ID);
+			console.log(counter + playerDestroyer2.status);});
+	}
+*/
 	setTimeout(()=>{
 		if (counter==13) {
-			document.getElementById('info').innerHTML='Done!';
+			document.getElementById('info').innerHTML='Done! Battleship: '+ 
+				playerBattleship.status+playerBattleship.bridgeLoc+' Destroyer1: '+playerDestroyer1.status+playerDestroyer1.bridgeLoc+
+				' Destroyer2: '+playerDestroyer2.status+playerDestroyer2.bridgeLoc;
 			console.log('done');
 		}
 	}, 20000);
-	
-	
+		
 }
 
 function initialTablesPrep() {
@@ -95,10 +100,29 @@ function initialTablesPrep() {
 			compGrids[j].id='c'+(i-1)+(j-1);
 			playerGrids[j].onclick = function() {
 				playerLocation=this.id;
+				definePlayerShip(playerLocation);
 			};
 		}
 	}
 }
+
+function definePlayerShip(playerLocation){
+		ID=playerLocation;
+		console.log(counter+ID);
+		if(counter==0) {
+			playerBattleship = inputShip(ID);
+			console.log(playerBattleship.status);
+		}
+		else if(counter==5){
+			playerDestroyer1=inputShip(ID);
+			console.log(playerDestroyer1.status);
+		}
+		else if(counter==9){
+			playerDestroyer2=inputShip(ID);
+			console.log(playerDestroyer2.status);
+		}
+	}
+		
 
 function generateID() {
 	let ID='c' + Math.floor(Math.random()*10) + Math.floor(Math.random()*10);
