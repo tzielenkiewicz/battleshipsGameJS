@@ -1,5 +1,5 @@
 let counter=0;
-
+let report;
 let Battleship=function(status, bridgeLoc, radarLoc, gunLoc, chimneyLoc, rocketLauncherLoc) {
 	this.status=status;
 	this.bridgeLoc=bridgeLoc;
@@ -7,23 +7,38 @@ let Battleship=function(status, bridgeLoc, radarLoc, gunLoc, chimneyLoc, rocketL
 	this.gunLoc=gunLoc;
 	this.chimneyLoc=chimneyLoc;
 	this.rocketLauncherLoc=rocketLauncherLoc;
-/*	
+
 	this.changeStatus = function() {
-		if (allLocations.innerHTML=='*') status=false;
-	
-	}*/
+		if (document.getElementById(bridgeLoc).innerHTML=='*' &&
+		   document.getElementById(radarLoc).innerHTML=='*' &&
+			document.getElementById(gunLoc).innerHTML=='*' &&
+			document.getElementById(chimneyLoc).innerHTML=='*' &&
+			document.getElementById(rocketLauncherLoc).innerHTML=='*') this.status='sunk';
+		else if (document.getElementById(bridgeLoc).innerHTML=='*' ||
+		   document.getElementById(radarLoc).innerHTML=='*' ||
+			document.getElementById(gunLoc).innerHTML=='*' ||
+			document.getElementById(chimneyLoc).innerHTML=='*' ||
+			document.getElementById(rocketLauncherLoc).innerHTML=='*') this.status='hit';
+	}
 }
-let Destroyer=function(status, bridgeLoc, radarLoc, gunLoc, chimneyLoc) {
-	this.status=status;
+let Destroyer=function(bridgeLoc, radarLoc, gunLoc, chimneyLoc) {
+	this.status='sailing';
 	this.bridgeLoc=bridgeLoc;
 	this.radarLoc=radarLoc;
 	this.gunLoc=gunLoc;
 	this.chimneyLoc=chimneyLoc;
-/*	this.changeStatus = function() {
-		if (allLocations.innerHTML=='*') status=false;
-	*/
-	
+	this.changeStatus = function() {
+		if (document.getElementById(bridgeLoc).innerHTML=='*' &&
+	   document.getElementById(radarLoc).innerHTML=='*' &&
+		document.getElementById(gunLoc).innerHTML=='*' &&
+		document.getElementById(chimneyLoc).innerHTML=='*') this.status='sunk';
+	else if (document.getElementById(bridgeLoc).innerHTML=='*' ||
+	   document.getElementById(radarLoc).innerHTML=='*' ||
+		document.getElementById(gunLoc).innerHTML=='*' ||
+		document.getElementById(chimneyLoc).innerHTML=='*') this.status='hit';
+	}
 }
+
 let playerLocation;
 let computerBattleship = new Battleship;
 let computerDestroyer1 = new Destroyer;
@@ -32,94 +47,81 @@ let playerBattleship = new Battleship;
 let playerDestroyer1 = new Destroyer;
 let playerDestroyer2 = new Destroyer;
 let ID;
+
 function startTheGame() {
 	
 	alert('Game started!');
 	initialTablesPrep();
-	console.log('input comp ships');	
 	computerBattleship = inputShip(generateID());
-	console.log('first ship status is: ' + computerBattleship.status + ' and its bridge location is: ' + computerBattleship.bridgeLoc);
 	while(counter==5) {computerDestroyer1 = inputShip(generateID());}
-	console.log('second ship status is: ' + computerDestroyer1.status);
 	while(counter==9) {computerDestroyer2 = inputShip(generateID());}
-	console.log('third ship status is: ' + computerDestroyer2.status);
 	counter=0;
 	alert('Now input three ships by clicking the initial grid. You can decide if it is vertical or horizontal (left side down...)');
 
-	document.getElementById('info').innerHTML='Set your ships!';
-	/*
-		
-	if (counter==5) {
-		
-		document.getElementById('player').addEventListener("click", definePlayerShip(playerLocation, playerBattleship));
-		document.getElementById('player').removeEventListener("click", definePlayerBattleship());
-	}
-	
+	document.getElementById('info').innerHTML='Set your ships!...and wait.';
 
-	if(counter==0) {
-
-			document.getElementById('player').addEventListener("click", function() {
-			ID=playerLocation;
-			
-			console.log(counter+ID);
-			playerDestroyer1 = inputShip(ID);
-			console.log(playerDestroyer1.status);
-			document.getElementById('player').removeEventListener("click", this);});
-	}
-
-	if(counter==9) {
-
-			document.getElementById('player').addEventListener("click", function() {
-			ID=playerLocation;
-			console.log(corunter+ID);
-			playerDestroyer2 = inputShip(ID);
-			console.log(counter + playerDestroyer2.status);});
-	}
-*/
 	setTimeout(()=>{
 		if (counter==13) {
-			document.getElementById('info').innerHTML='Done! Battleship: '+ 
-				playerBattleship.status+playerBattleship.bridgeLoc+' Destroyer1: '+playerDestroyer1.status+playerDestroyer1.bridgeLoc+
-				' Destroyer2: '+playerDestroyer2.status+playerDestroyer2.bridgeLoc;
+			displayStatus();
 			console.log('done');
 		}
-	}, 20000);
 		
+		let compRows=document.getElementById('comp').getElementsByTagName('tr');
+		let compGrids;
+		for(i=1; i<11; i++) {
+			compGrids=compRows[i].getElementsByTagName('td');
+			for(j=1; j<11; j++) compGrids[j].onclick = function() {
+				if (this.innerHTML=='') {
+				this.innerHTML='o';
+				report='missed';
+				}
+				else if(this.innerHTML=='x') {
+					this.innerHTML='*';
+					report='hit';
+				}
+				else if(this.innerHTML=='*') document.getElementById('info').innerHTML='Already hit! Try again!';
+				if (report=='missed') computerFire();
+				displayStatus();
+				checkWinner();
+			};
+		}
+	}, 20000);
 }
 
 function initialTablesPrep() {
-	let playerRows=document.getElementById('player').getElementsByTagName('tr');
-	let compRows=document.getElementById('comp').getElementsByTagName('tr');
-	let playerGrids;
-	let compGrids;
+	
 	for(i=1; i<11; i++) {
+		let playerRows=document.getElementById('player').getElementsByTagName('tr');
+		let compRows=document.getElementById('comp').getElementsByTagName('tr');
+		let playerGrids;
+		let compGrids;
+
 		playerGrids=playerRows[i].getElementsByTagName('td');
 		compGrids=compRows[i].getElementsByTagName('td');
 		for(j=1; j<11; j++) {
 			playerGrids[j].id='p'+(i-1)+(j-1);
 			compGrids[j].id='c'+(i-1)+(j-1);
 			playerGrids[j].onclick = function() {
-				playerLocation=this.id;
-				definePlayerShip(playerLocation);
+				definePlayerShip(this.id);					
 			};
 		}
 	}
 }
 
-function definePlayerShip(playerLocation){
-		ID=playerLocation;
+function definePlayerShip(ID){
+
 		console.log(counter+ID);
 		if(counter==0) {
 			playerBattleship = inputShip(ID);
-			console.log(playerBattleship.status);
+			console.log(counter);
 		}
 		else if(counter==5){
 			playerDestroyer1=inputShip(ID);
-			console.log(playerDestroyer1.status);
+			console.log(counter);
 		}
 		else if(counter==9){
 			playerDestroyer2=inputShip(ID);
-			console.log(playerDestroyer2.status);
+			console.log(counter);
 		}
 	}
 		
@@ -159,15 +161,16 @@ function inputShip(id) {
 				}
 					counter++;
 			}
-			if (position==false) {
-				playerBTLS = new Battleship('sailing', [locationSet[0], no2], [locationSet[1], no2], [locationSet[2], no2], [locationSet[3], no2], [locationSet[4], no2]);
-				console.log(playerBTLS.status);
+			if (position==true) {
+				playerBTLS = new Battleship('sailing', 'p'+locationSet[0]+no2, 'p'+locationSet[1]+no2, 'p'+locationSet[2]+no2, 'p'+locationSet[3]+no2, 'p'+locationSet[4]+no2);
+				console.log(playerBTLS);
 				return playerBTLS;
 				
 			}
 			else {
-				playerBTLS = new Battleship('sailing', [no1, locationSet[0]], [no1, locationSet[1]], [no1, locationSet[2]], [no1, locationSet[3]], [no1, locationSet[4]]);
-				console.log(playerBTLS.status);
+				playerBTLS = new Battleship('sailing', 'p'+no1+locationSet[0], 'p'+no1+locationSet[1], 'p'+no1+locationSet[2], 'p'+no1+locationSet[3], 'p'+no1+locationSet[4]);
+				console.log(playerBTLS);
+				
 				return playerBTLS;
 			}
 		}
@@ -192,31 +195,28 @@ function inputShip(id) {
 					counter++;
 				}
 				if(position==true && counter==9) {
-					playerDSTR1=new Destroyer('sailing', [locationSet[0], no2], [locationSet[1], no2], [locationSet[2], no2], [locationSet[3], no2]);
-					console.log(playerDSTR1.bridgeLoc);
+					playerDSTR1=new Destroyer('p'+locationSet[0]+no2, 'p'+locationSet[1]+no2, 'p'+locationSet[2]+no2, 'p'+locationSet[3]+no2);
+					console.log(playerDSTR1);
 					return playerDSTR1;
 				}
 				else if(position==false && counter==9) {
-					playerDSTR1=new Destroyer('sailing', [no1, locationSet[0]], [no1, locationSet[1]], [no1, locationSet[2]], [no1, locationSet[3]]);
-					console.log(playerDSTR1.bridgeLoc);
+					playerDSTR1=new Destroyer('p'+no1+locationSet[0], 'p'+no1+locationSet[1], 'p'+no1+locationSet[2], 'p'+no1+locationSet[3]);
+					console.log(playerDSTR1);
 					return playerDSTR1;
 				}
 				else if(position==true && counter>9) {
-					playerDSTR2=new Destroyer('sailing', [locationSet[0], no2], [locationSet[1], no2], [locationSet[2], no2], [locationSet[3], no2]);
-					console.log(playerDSTR2.chimneyLoc[1]);
+					playerDSTR2=new Destroyer('p'+locationSet[0]+no2, 'p'+locationSet[1]+no2, 'p'+locationSet[2]+no2, 'p'+locationSet[3]+no2);
+					console.log(playerDSTR2);
 					return playerDSTR2;
 				}
 				else if(position==false && counter>9) {
-					playerDSTR2=new Destroyer('sailing', [no1, locationSet[0]], [no1, locationSet[1]], [no1, locationSet[2]], [no1, locationSet[3]]);
-					console.log(playerDSTR2.chimneyLoc[1]);
+					playerDSTR2=new Destroyer('p'+no1+locationSet[0], 'p'+no1+locationSet[1], 'p'+no1+locationSet[2], 'p'+no1+locationSet[3]);
+					console.log(playerDSTR2);
 					return playerDSTR2;
 				}
 			}
-			
-
 			else alert('Wrong location!');
-		}
-		else alert('Too many ships!');	
+		}	
 	}
 	
 	else if (id[0]=='c'){
@@ -244,11 +244,13 @@ function inputShip(id) {
 					counter++;
 				}
 				if(position==true){ 
-					compBTLS = new Battleship('sailing', [locationSet[0], no2], [locationSet[1], no2], [locationSet[2], no2], [locationSet[3], no2], [locationSet[4], no2]);
+					compBTLS = new Battleship('sailing', 'c'+locationSet[0]+no2, 'c'+locationSet[1]+no2, 'c'+locationSet[2]+no2, 'c'+locationSet[3]+no2, 'c'+locationSet[4]+no2);
+					console.log(compBTLS);
 					return compBTLS;
 				}
 				else {
-					compBTLS = new Battleship('sailing', [no1, locationSet[0]], [no1, locationSet[1]], [no1, locationSet[2]], [no1, locationSet[3]], [no1, locationSet[4]]);
+					compBTLS = new Battleship('sailing', 'c'+no1+locationSet[0], 'c'+no1+locationSet[1], 'c'+no1+locationSet[2], 'c'+no1+locationSet[3], 'c'+no1+locationSet[4]);
+					console.log(compBTLS);
 					return compBTLS;
 				}
 			}
@@ -271,23 +273,23 @@ function inputShip(id) {
 					counter++;
 				}
 				if(position==true && counter==9) {
-					compDSTR1=new Destroyer('sailing', [locationSet[0], no2], [locationSet[1], no2], [locationSet[2], no2], [locationSet[3], no2]);
+					compDSTR1=new Destroyer('c'+locationSet[0]+no2, 'c'+locationSet[1]+no2, 'c'+locationSet[2]+no2, 'c'+locationSet[3]+no2);
 					console.log(compDSTR1.bridgeLoc);
 					return compDSTR1;
 				}
 				else if(position==false && counter==9) {
-					compDSTR1=new Destroyer('sailing', [no1, locationSet[0]], [no1, locationSet[1]], [no1, locationSet[2]], [no1, locationSet[3]]);
+					compDSTR1=new Destroyer('c'+no1+locationSet[0], 'c'+no1+locationSet[1], 'c'+no1+locationSet[2], 'c'+no1+locationSet[3]);
 					console.log(compDSTR1.bridgeLoc);
 					return compDSTR1;
 				}
 					else if(position==true && counter>9) {
-					compDSTR2=new Destroyer('sailing', [locationSet[0], no2], [locationSet[1], no2], [locationSet[2], no2], [locationSet[3], no2]);
-					console.log(compDSTR2.chimneyLoc[1]);
+					compDSTR2=new Destroyer('c'+locationSet[0]+no2, 'c'+locationSet[1]+no2, 'c'+locationSet[2]+no2, 'c'+locationSet[3]+no2);
+					console.log(compDSTR2.chimneyLoc);
 					return compDSTR2;
 				}
 				else if(position==false && counter>9) {
-					compDSTR2=new Destroyer('sailing', [no1, locationSet[0]], [no1, locationSet[1]], [no1, locationSet[2]], [no1, locationSet[3]]);
-					console.log(compDSTR2.chimneyLoc[1]);
+					compDSTR2=new Destroyer('c'+no1+locationSet[0], 'c'+no1+locationSet[1], 'c'+no1+locationSet[2], 'c'+no1+locationSet[3]);
+					console.log(compDSTR2.chimneyLoc);
 					return compDSTR2;
 				}				
 			}
@@ -340,8 +342,43 @@ function checkLocation(letter, n1, n2, position) {
 	return correct;
 }
 
-function fireRound(){
-	console.log('fireRound started');
-	document.getElementById('info').innerHTML='player Battleship: ' + playerBTLS.status + ', player Destroyer1: ' + playerDSTR1.status + ', player Destroyer2: ' + playerDSTR2.status + '    computer Battleship: ' + compBTLS.status +', computer Destroyer1: ' + compDSTR1.status + ', computer Destroyer2: ' + compDSTR2.status;
-	console.log('fireRound executed');
+function displayStatus() {
+	playerBattleship.changeStatus();
+	playerDestroyer1.changeStatus();
+	playerDestroyer2.changeStatus();
+	computerBattleship.changeStatus();
+	computerDestroyer1.changeStatus();
+	computerDestroyer2.changeStatus();
+	document.getElementById('info').innerHTML='Battleship: '+playerBattleship.status
+		+ ' Destroyer1: '+playerDestroyer1.status +' Destroyer2: '+ playerDestroyer2.status+
+		' Battleship: '+computerBattleship.status+' Destroyer1: '+
+		computerDestroyer1.status+' Destroyer2: '+computerDestroyer2.status;
+}
+function play() {
+	document.getElementById(playerBTLS.gunLoc).innerHTML='*';	
+}
+
+function computerFire() {
+	let fireCoord, grid;
+	do {
+		fireCoord = 'p'+Math.floor(Math.random()*10)+Math.floor(Math.random()*10);
+		grid = document.getElementById(fireCoord);
+
+		if (grid.innerHTML=='') {
+			grid.innerHTML='o';
+			report='missed';
+		}
+		else if(grid.innerHTML=='x') {
+			grid.innerHTML='*';
+			report='hit';
+		}
+		else report='hit';
+	} while(report=='hit')
+}
+
+function checkWinner() {
+	if (computerBattleship.status=='sunk' && computerDestroyer1.status=='sunk' && computerDestroyer2.status=='sunk')
+		document.getElementById('info').innerHTML='Player wins!';
+	else if (playerBattleship.status=='sunk' && playerDestroyer1.status=='sunk' && playerDestroyer2=='sunk')
+		document.getElementById('info').innerHTML='Computer wins!';
 }
